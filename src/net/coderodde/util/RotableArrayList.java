@@ -49,19 +49,15 @@ public class RotableArrayList<E> extends ArrayList<E> {
     
     @Override
     public boolean addAll(Collection<? extends E> coll) {
-        boolean modified = false;
-        
-        for (E element : coll) {
-            int index = finger - 1;
-            
-            if (index < 0) {
-                finger = size();
-            }
-            
-            super.add(finger, element);
+        if (coll.isEmpty()) {
+            return false;
         }
         
-        return modified;
+        for (E element : coll) {
+            super.add(finger++, element);
+        }
+        
+        return true;
     }
     
     @Override
@@ -70,6 +66,12 @@ public class RotableArrayList<E> extends ArrayList<E> {
         E ret = get(index);
         super.remove((index + finger) % size());
         return ret;
+    }
+    
+    @Override
+    public void clear() {
+        super.clear();
+        finger = 0;
     }
 
     @Override
