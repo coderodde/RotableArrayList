@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -383,6 +381,94 @@ public class RotableArrayListTest {
         assertEquals(Integer.valueOf(4), list.get(4));
         assertEquals(Integer.valueOf(5), list.get(5));
         assertEquals(Integer.valueOf(6), list.get(6));
+        
+        List<Integer> list2 = new ArrayList<>();
+        
+        assertFalse(list.addAll(Arrays.asList()));
+        assertFalse(list2.addAll(Arrays.asList()));
+        
+        assertTrue(list.addAll(Arrays.asList(1)));
+        assertTrue(list2.addAll(Arrays.asList(1)));
+    }
+    
+    public void testAddAllInt() {
+        load(4);
+        list.rotate(-2); // 2, 3, 0, 1
+        list.addAll(1, Arrays.asList(4, 5, 6));
+        
+        assertEquals(Integer.valueOf(2), list.get(0));
+        assertEquals(Integer.valueOf(4), list.get(1));
+        assertEquals(Integer.valueOf(5), list.get(2));
+        assertEquals(Integer.valueOf(6), list.get(3));
+        assertEquals(Integer.valueOf(3), list.get(4));
+        assertEquals(Integer.valueOf(0), list.get(5));
+        assertEquals(Integer.valueOf(1), list.get(6));
+       
+        List<Integer> list2 = new ArrayList<>();
+        
+        assertFalse(list.addAll(1, Arrays.asList()));
+        assertFalse(list2.addAll(1, Arrays.asList()));
+        
+        assertTrue(list.addAll(1, Arrays.asList(1)));
+        assertTrue(list2.addAll(1, Arrays.asList(1)));
+    }
+    
+    @Test
+    public void testToArray() {
+        load(5);
+        
+        list.rotate(3); // 2, 3, 4, 0, 1
+        
+        Object[] array = list.toArray();
+        
+        assertEquals(2, array[0]);
+        assertEquals(3, array[1]);
+        assertEquals(4, array[2]);
+        assertEquals(0, array[3]);
+        assertEquals(1, array[4]);
+    }
+    
+    public void testGenericToArray() {
+        load(5);
+        list.rotate(-2); // 2, 3, 4, 0, 1
+        
+        Integer[] array = new Integer[4];
+        Integer[] result = list.toArray(array);
+        
+        assertTrue(array != result);
+        assertEquals(5, result.length);
+        
+        assertEquals(Integer.valueOf(2), result[0]);
+        assertEquals(Integer.valueOf(3), result[1]);
+        assertEquals(Integer.valueOf(4), result[2]);
+        assertEquals(Integer.valueOf(0), result[3]);
+        assertEquals(Integer.valueOf(1), result[4]);
+        
+        array = new Integer[5];
+        result = list.toArray(array);
+        
+        assertTrue(array == result);
+        
+        assertEquals(5, result.length);
+        
+        assertEquals(Integer.valueOf(2), result[0]);
+        assertEquals(Integer.valueOf(3), result[1]);
+        assertEquals(Integer.valueOf(4), result[2]);
+        assertEquals(Integer.valueOf(0), result[3]);
+        assertEquals(Integer.valueOf(1), result[4]);
+        
+        array = new Integer[6];
+        result = list.toArray(array);
+        
+        assertTrue(array == result);
+        assertEquals(6, array.length);
+        
+        assertEquals(Integer.valueOf(2), result[0]);
+        assertEquals(Integer.valueOf(3), result[1]);
+        assertEquals(Integer.valueOf(4), result[2]);
+        assertEquals(Integer.valueOf(0), result[3]);
+        assertEquals(Integer.valueOf(1), result[4]);
+        assertNull(result[5]); // Cut off value.
     }
     
     private boolean listsEqual(List<Integer> list, List<Integer> list2) {

@@ -1,8 +1,10 @@
 package net.coderodde.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -61,6 +63,21 @@ public class RotableArrayList<E> extends ArrayList<E> {
     }
     
     @Override
+    public boolean addAll(int index, Collection<? extends E> coll) {
+        if (coll.isEmpty()) {
+            return true;
+        }
+        
+        int added = 0;
+        
+        for (E element : coll) {
+            super.add(index + added++, element);
+        }
+        
+        return true;
+    }
+    
+    @Override
     public E remove(int index) {
         checkRemovalIndex(index);
         E ret = get(index);
@@ -106,7 +123,25 @@ public class RotableArrayList<E> extends ArrayList<E> {
 
     @Override
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException();
+        return new Iterator<E>() {
+
+            private final ListIterator<E> listIterator = listIterator(0);
+            
+            @Override
+            public boolean hasNext() {
+                return listIterator.hasNext();
+            }
+
+            @Override
+            public E next() {
+                return listIterator.next();
+            }
+            
+            @Override
+            public void remove() {
+                listIterator.remove();
+            }
+        };
     }
 
     @Override
@@ -131,12 +166,33 @@ public class RotableArrayList<E> extends ArrayList<E> {
 
     @Override
     public Object[] toArray() {
-        throw new UnsupportedOperationException();
+        Object[] array = new Object[size()];
+        int index = 0;
+        
+        for (E element : this) {
+            array[index++] = element;
+        }
+        
+        return array;
     }
 
     @Override
     public <E> E[] toArray(E[] a) {
-        throw new UnsupportedOperationException();
+        if (a.length < size()) {
+            a = Arrays.copyOf(a, a.length);
+        }
+        
+        int index = 0;
+        
+        for (Object element : this) {
+            a[index++] = (E) element;
+        }
+        
+        if (a.length > size()) {
+            a[size()] = null;
+        }
+        
+        return a;
     }
 
     @Override
@@ -221,6 +277,7 @@ public class RotableArrayList<E> extends ArrayList<E> {
 
         // Index is an arrow that points between two array elements:
         // array[index - 1] and array[index].
+        private int expectedModCount = RotableArrayList.super.modCount;
         private int index;
         private int indexOfIteratedElement = -1;
         private boolean lastMoveWasNext;
@@ -236,6 +293,8 @@ public class RotableArrayList<E> extends ArrayList<E> {
 
         @Override
         public E next() {
+            checkConcurrentModification();
+            
             if (!hasNext()) {
                 throw new NoSuchElementException(
                         "No next element in this iterator.");
@@ -253,6 +312,8 @@ public class RotableArrayList<E> extends ArrayList<E> {
 
         @Override
         public E previous() {
+            checkConcurrentModification();
+            
             if (!hasPrevious()) {
                 throw new NoSuchElementException(
                         "No previous element in this iterator.");
@@ -280,8 +341,10 @@ public class RotableArrayList<E> extends ArrayList<E> {
                         "There is no element to remove.");
             }
             
+            checkConcurrentModification();
             RotableArrayList.this.remove(indexOfIteratedElement);
             indexOfIteratedElement = -1;
+            expectedModCount = RotableArrayList.super.modCount;
         
             if (lastMoveWasNext) {
                 index--;
@@ -294,14 +357,26 @@ public class RotableArrayList<E> extends ArrayList<E> {
                 throw new IllegalStateException("There is no current element.");
             }
             
+            checkConcurrentModification();
             RotableArrayList.this.set(indexOfIteratedElement, e);
+            expectedModCount = RotableArrayList.super.modCount;
         }
 
         @Override
         public void add(E e) {
+            checkConcurrentModification(); 
             RotableArrayList.this.add(nextIndex(), e);
             index++;
             indexOfIteratedElement = -1;
+            expectedModCount = RotableArrayList.super.modCount;
+        }
+        
+        private void checkConcurrentModification() {
+            if (expectedModCount != RotableArrayList.super.modCount) {
+                throw new ConcurrentModificationException(
+                        "Expected mod count: " + expectedModCount + ", " + 
+                        "actual mod count: " + RotableArrayList.super.modCount);
+            }
         }
     }
     
