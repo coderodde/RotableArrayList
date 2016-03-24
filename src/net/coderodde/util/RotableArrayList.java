@@ -1,6 +1,7 @@
 package net.coderodde.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +46,24 @@ public class RotableArrayList<E> extends ArrayList<E> {
         add(size(), element);
         return true;
     }
-
+    
+    @Override
+    public boolean addAll(Collection<? extends E> coll) {
+        boolean modified = false;
+        
+        for (E element : coll) {
+            int index = finger - 1;
+            
+            if (index < 0) {
+                finger = size();
+            }
+            
+            super.add(finger, element);
+        }
+        
+        return modified;
+    }
+    
     @Override
     public E remove(int index) {
         checkRemovalIndex(index);

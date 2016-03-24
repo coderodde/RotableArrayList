@@ -370,6 +370,42 @@ public class RotableArrayListTest {
         assertTrue(listsEqual(list, list2));
     }
     
+    @Test  
+    public void testAddAllBug() {
+        RotableArrayList<Integer> list = new RotableArrayList<>();
+        list.add(5);
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        
+        ArrayList<Integer> list2 = new ArrayList<>();
+        list2.add(6);
+        list2.add(7);
+        list2.add(8);
+        
+        list.rotate(-1);
+        System.out.println(list);
+        
+        list.addAll(list2);
+        System.out.println(list);
+        
+        RotableArrayList<Integer> list3 = new RotableArrayList<>();
+        list3.add(1);
+        list3.add(2);
+        list3.add(3);
+        list3.add(4);
+        list3.add(5);
+        
+        ArrayList<Integer> list4 = new ArrayList<>();
+        list4.add(6);
+        list4.add(7);
+        list4.add(8);
+        
+        list3.addAll(list4);
+        System.out.println(list3);
+    }
+    
     private boolean listsEqual(List<Integer> list, List<Integer> list2) {
         if (list.size() != list2.size()) {
             return false;
