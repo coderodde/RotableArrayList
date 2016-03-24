@@ -55,25 +55,25 @@ public class RotableArrayList<E> extends ArrayList<E> {
             return false;
         }
         
-        for (E element : coll) {
-            super.add(finger++, element);
-        }
-        
+        super.addAll(finger, coll);
+        finger += coll.size();
         return true;
     }
     
     @Override
     public boolean addAll(int index, Collection<? extends E> coll) {
         if (coll.isEmpty()) {
-            return true;
+            return false;
         }
         
-        int added = 0;
+        int actualIndex = finger + index;
         
-        for (E element : coll) {
-            super.add(index + added++, element);
-        }
+        if (actualIndex >= size()) {
+            actualIndex %= size();
+            finger += coll.size();
+        } 
         
+        super.addAll(actualIndex, coll);
         return true;
     }
     
@@ -179,7 +179,7 @@ public class RotableArrayList<E> extends ArrayList<E> {
     @Override
     public <E> E[] toArray(E[] a) {
         if (a.length < size()) {
-            a = Arrays.copyOf(a, a.length);
+            a = Arrays.copyOf(a, size());
         }
         
         int index = 0;

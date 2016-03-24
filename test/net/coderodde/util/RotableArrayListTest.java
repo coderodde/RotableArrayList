@@ -179,19 +179,6 @@ public class RotableArrayListTest {
     }
     
     @Test
-    public void testIndexOfBug() {
-        list.add(3);
-        list.add(2);
-        list.add(1);
-        list.add(3);
-        
-        list.rotate(-1);
-        
-        System.out.println(list);
-        System.out.println(list.indexOf(3));
-    }
-    
-    @Test
     public void testListIteratorNextAndHasNext() {
         load(5);
         
@@ -391,6 +378,7 @@ public class RotableArrayListTest {
         assertTrue(list2.addAll(Arrays.asList(1)));
     }
     
+    @Test
     public void testAddAllInt() {
         load(4);
         list.rotate(-2); // 2, 3, 0, 1
@@ -404,13 +392,40 @@ public class RotableArrayListTest {
         assertEquals(Integer.valueOf(0), list.get(5));
         assertEquals(Integer.valueOf(1), list.get(6));
        
-        List<Integer> list2 = new ArrayList<>();
+        List<Integer> list2 = new ArrayList<>(list);
         
         assertFalse(list.addAll(1, Arrays.asList()));
         assertFalse(list2.addAll(1, Arrays.asList()));
         
         assertTrue(list.addAll(1, Arrays.asList(1)));
         assertTrue(list2.addAll(1, Arrays.asList(1)));
+        
+        list.clear();
+        
+        load(5);
+        list.rotate(2); // 3, 4, 0, 1, 2
+        list.addAll(3, Arrays.asList(10, 11));
+        
+        assertEquals(Integer.valueOf(3),  list.get(0));
+        assertEquals(Integer.valueOf(4),  list.get(1));
+        assertEquals(Integer.valueOf(0),  list.get(2));
+        assertEquals(Integer.valueOf(10), list.get(3));
+        assertEquals(Integer.valueOf(11), list.get(4));
+        assertEquals(Integer.valueOf(1),  list.get(5));
+        assertEquals(Integer.valueOf(2),  list.get(6));
+        
+        list.clear();
+        load(5);
+        list.rotate(2); // 3, 4, 0, 1, 2
+        list.addAll(1, Arrays.asList(10, 11)); // 3, 10, 11, 4, 0, 1, 2
+        
+        assertEquals(Integer.valueOf(3),  list.get(0));
+        assertEquals(Integer.valueOf(10),  list.get(1));
+        assertEquals(Integer.valueOf(11),  list.get(2));
+        assertEquals(Integer.valueOf(4), list.get(3));
+        assertEquals(Integer.valueOf(0), list.get(4));
+        assertEquals(Integer.valueOf(1),  list.get(5));
+        assertEquals(Integer.valueOf(2),  list.get(6));
     }
     
     @Test
@@ -428,6 +443,7 @@ public class RotableArrayListTest {
         assertEquals(1, array[4]);
     }
     
+    @Test
     public void testGenericToArray() {
         load(5);
         list.rotate(-2); // 2, 3, 4, 0, 1
