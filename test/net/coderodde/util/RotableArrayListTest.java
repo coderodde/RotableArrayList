@@ -2,9 +2,11 @@ package net.coderodde.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -118,6 +120,13 @@ public class RotableArrayListTest {
         assertEquals(Integer.valueOf(0), list.get(1));
         assertEquals(Integer.valueOf(1), list.get(2));
         assertEquals(Integer.valueOf(2), list.get(3));
+        
+        list.clear();
+        load(10);
+        list.rotate(3);
+        list.remove(Integer.valueOf(3));
+        
+        System.out.println("Yeha: " + list);
     }
 
     @Test
@@ -485,6 +494,31 @@ public class RotableArrayListTest {
         assertEquals(Integer.valueOf(0), result[3]);
         assertEquals(Integer.valueOf(1), result[4]);
         assertNull(result[5]); // Cut off value.
+    }
+    
+    @Test
+    public void testRemoveAll() {
+        load(5);
+        list.rotate(3);
+        Set<Integer> set = new HashSet<>(Arrays.asList(2, 3, 1));
+        
+        list.removeAll(set);
+        
+        assertEquals(Integer.valueOf(4), list.get(0));
+        assertEquals(Integer.valueOf(0), list.get(1));
+        
+        list.clear();
+        load(10);
+        list.rotate(3); // 7, 8, 9, 0, 1, 2, 3, 4, 5, 6
+        set.clear();
+        set.addAll(Arrays.asList(0, 2, 3, 6, 9));
+        list.removeAll(set);
+        
+        assertEquals(Integer.valueOf(7), list.get(0));
+        assertEquals(Integer.valueOf(8), list.get(1));
+        assertEquals(Integer.valueOf(1), list.get(2));
+        assertEquals(Integer.valueOf(4), list.get(3));
+        assertEquals(Integer.valueOf(5), list.get(4));
     }
     
     private boolean listsEqual(List<Integer> list, List<Integer> list2) {

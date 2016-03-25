@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 
 /**
@@ -80,8 +82,13 @@ public class RotableArrayList<E> extends ArrayList<E> {
     @Override
     public E remove(int index) {
         checkRemovalIndex(index);
-        E ret = get(index);
-        super.remove((index + finger) % size());
+        E ret = this.get(index);
+        super.remove((finger + index) % size());
+        
+        if (finger + index > size()) {
+            --finger;
+        }
+        
         return ret;
     }
     
@@ -202,11 +209,62 @@ public class RotableArrayList<E> extends ArrayList<E> {
         for (int index = 0; index < size; ++index) {
             if (Objects.equals(o, get(index))) {
                 remove(index);
+                // size = 10, finger = 7, index = 4
+                if (index + finger >= size()) {
+                    --finger;
+                }
+                
                 return true;
             }
         }
 
         return false;
+    }
+    
+    @Override
+    public boolean removeAll(Collection<?> coll) {
+        if (coll.isEmpty()) {
+            return false;
+        }
+        
+        Set<?> set = (coll instanceof HashSet) ? 
+                                 (Set<?>) coll : 
+                                 new HashSet<>(coll);
+        
+        Iterator<E> iterator = this.iterator();
+        System.out.println("========");
+        while (iterator.hasNext()) {
+            E current = iterator.next();
+            
+            if (set.contains(current)) {
+                iterator.remove();
+            }
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public boolean retainAll(Collection<?> coll) {
+        if (coll.isEmpty()) {
+            return false;
+        }
+        
+        Set<?> set = (coll instanceof HashSet) ? 
+                                 (Set<?>) coll : 
+                                 new HashSet<>(coll);
+        
+        Iterator<E> iterator = iterator();
+        
+        while (iterator.hasNext()) {
+            E current = iterator.next();
+            
+            if (!set.contains(current)) {
+                iterator.remove();
+            }
+        }
+        
+        return true;
     }
 
     @Override
@@ -302,6 +360,8 @@ public class RotableArrayList<E> extends ArrayList<E> {
         
             indexOfIteratedElement = index;
             lastMoveWasNext = true;
+            System.out.println("+");
+            System.out.println("Next index: " + (index + 1));
             return (E) RotableArrayList.this.get(index++);
         }
 
@@ -342,12 +402,15 @@ public class RotableArrayList<E> extends ArrayList<E> {
             }
             
             checkConcurrentModification();
-            RotableArrayList.this.remove(indexOfIteratedElement);
+            E ret = RotableArrayList.this.remove(indexOfIteratedElement);
             indexOfIteratedElement = -1;
             expectedModCount = RotableArrayList.super.modCount;
         
             if (lastMoveWasNext) {
+                System.out.println(ret);
+                System.out.println("-");
                 index--;
+                System.out.println("Remove index: " + index);
             }
         }
 
