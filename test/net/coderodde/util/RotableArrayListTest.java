@@ -125,8 +125,6 @@ public class RotableArrayListTest {
         load(10);
         list.rotate(3);
         list.remove(Integer.valueOf(3));
-        
-        System.out.println("Yeha: " + list);
     }
 
     @Test
@@ -519,6 +517,32 @@ public class RotableArrayListTest {
         assertEquals(Integer.valueOf(1), list.get(2));
         assertEquals(Integer.valueOf(4), list.get(3));
         assertEquals(Integer.valueOf(5), list.get(4));
+    }
+    
+    @Test
+    public void testRetainAll() {
+        load(5);
+        list.rotate(3); // 2, 3, 4, 0, 1
+        Set<Integer> set = new HashSet<>(Arrays.asList(2, 3, 1));
+        
+        list.retainAll(set); // 2, 3, 1
+        
+        assertEquals(Integer.valueOf(2), list.get(0));
+        assertEquals(Integer.valueOf(3), list.get(1));
+        assertEquals(Integer.valueOf(1), list.get(2));
+        
+        list.clear();
+        load(10);
+        list.rotate(3); // 7, 8, 9, 0, 1, 2, 3, 4, 5, 6
+        set.clear();
+        set.addAll(Arrays.asList(0, 2, 3, 6, 9));
+        list.retainAll(set);
+        
+        assertEquals(Integer.valueOf(9), list.get(0));
+        assertEquals(Integer.valueOf(0), list.get(1));
+        assertEquals(Integer.valueOf(2), list.get(2));
+        assertEquals(Integer.valueOf(3), list.get(3));
+        assertEquals(Integer.valueOf(6), list.get(4));
     }
     
     private boolean listsEqual(List<Integer> list, List<Integer> list2) {

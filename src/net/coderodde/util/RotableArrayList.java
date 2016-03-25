@@ -232,7 +232,7 @@ public class RotableArrayList<E> extends ArrayList<E> {
                                  new HashSet<>(coll);
         
         Iterator<E> iterator = this.iterator();
-        System.out.println("========");
+        
         while (iterator.hasNext()) {
             E current = iterator.next();
             
@@ -360,8 +360,6 @@ public class RotableArrayList<E> extends ArrayList<E> {
         
             indexOfIteratedElement = index;
             lastMoveWasNext = true;
-            System.out.println("+");
-            System.out.println("Next index: " + (index + 1));
             return (E) RotableArrayList.this.get(index++);
         }
 
@@ -407,10 +405,7 @@ public class RotableArrayList<E> extends ArrayList<E> {
             expectedModCount = RotableArrayList.super.modCount;
         
             if (lastMoveWasNext) {
-                System.out.println(ret);
-                System.out.println("-");
                 index--;
-                System.out.println("Remove index: " + index);
             }
         }
 
